@@ -12,7 +12,7 @@ class AdaptiveMazeGame:
         self.maze_params = self._get_maze_parameters("beginner")
     
     def _get_maze_parameters(self, skill_level):
-        """Dynamically adjust maze parameters based on skill and level."""
+        """Dynamically adjust maze parameters based on skill and level, with a max size of 31x31."""
         base_sizes = {
             "beginner": 11,
             "intermediate": 15,
@@ -23,11 +23,23 @@ class AdaptiveMazeGame:
             "intermediate": "kruskal",
             "advanced": "wilson"
         }
+        
+        # Calculate parameters FIRST
         base_size = base_sizes.get(skill_level, 11)
         size_increase = 2 * (self.current_level - 1)
+        new_size = base_size + size_increase
+        
+        # Clamp the size to a maximum of 31
+        new_size = min(new_size, 31)
+        
+        # Track size changes
+        self.prev_size = getattr(self, 'prev_size', 0)
+        self.maze_shape_changed = (new_size != self.prev_size)
+        self.prev_size = new_size
+        
         return {
-            "width": base_size + size_increase,
-            "height": base_size + size_increase,
+            "width": new_size,
+            "height": new_size,
             "algorithm": algorithms[skill_level]
         }
     
